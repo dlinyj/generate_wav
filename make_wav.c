@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "make_wav.h"
  
 void write_little_endian(unsigned int word, int num_bytes, FILE *wav_file)
@@ -81,30 +84,37 @@ void write_wav(char * filename, unsigned long num_samples, short int * data, int
  
 //int buffer[BUF_SIZE];
 short int buffer[BUF_SIZE];
+
+double d_random(double min, double max)
+{
+    return min + (max - min) / RAND_MAX * rand();
+}
  
 int main(int argc, char * argv)
 {
 	int i;
-	float t;
+	//float t;
 	//float amplitude = 32000;
 	float amplitude = 16000;
 	//float freq_Hz = 440;
-	float freq_Hz = 10;
-	float phase=0;
+	float freq_Hz = 100;
+	//float phase=0;
 	
-
+	srand((unsigned int)time(0));
 		
 	//float freq_radians_per_sample = freq_Hz*2*M_PI/S_RATE;
 
 	/* fill buffer with a sine wave */
 	for (i=0; i<BUF_SIZE; i++)
 	{
-		phase += freq_radians_per_sample;
+		//phase += freq_radians_per_sample;
 		//buffer[i] = (int)(amplitude * sin(phase));
 		
 		buffer[i] = (int)(amplitude/10 * sin((float)(2*M_PI*i*freq_Hz/S_RATE)));
-		buffer[i] +=(int)(amplitude/20 * sin((float)(2*M_PI*i*100*freq_Hz/S_RATE)));
-		buffer[i] +=(int)(amplitude * sin((float)(2*M_PI*i*1000*freq_Hz/S_RATE)));
+		buffer[i] +=(int)(amplitude/20 * sin((float)(2*M_PI*i*10*freq_Hz/S_RATE)));
+		buffer[i] +=(int)(amplitude * sin((float)(2*M_PI*i*100*freq_Hz/S_RATE)));
+		
+		buffer[i] +=(int)amplitude*d_random(-1.0, 1.0); //nois
 	}
 	write_wav("test.wav", BUF_SIZE, buffer, S_RATE);
  
