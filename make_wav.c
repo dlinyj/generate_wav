@@ -5,6 +5,9 @@
  * Fri Jun 18 16:36:23 PDT 2010 Kevin Karplus
  * Creative Commons license Attribution-NonCommercial
  *  http://creativecommons.org/licenses/by-nc/3.0/
+ * 
+ * Edited by Dolin Sergey. dlinyj@gmail.com
+ * April 11 12:58 2014
  */
  
 #include <stdio.h>
@@ -80,7 +83,7 @@ void write_wav(char * filename, unsigned long num_samples, short int * data, int
 
 
 #define S_RATE  (44100)
-#define BUF_SIZE (S_RATE*2) /* 2 second buffer */
+#define BUF_SIZE (S_RATE*10) /* 2 second buffer */
  
 //int buffer[BUF_SIZE];
 short int buffer[BUF_SIZE];
@@ -90,31 +93,40 @@ double d_random(double min, double max)
     return min + (max - min) / RAND_MAX * rand();
 }
  
-int main(int argc, char * argv)
+int main(int argc, char * argv[])
 {
 	int i;
-	//float t;
 	//float amplitude = 32000;
-	float amplitude = 16000;
-	//float freq_Hz = 440;
+	float amplitude = 20000; // 32767/(10%amp+5%amp+100%amp)
 	float freq_Hz = 100;
-	//float phase=0;
 	
 	srand((unsigned int)time(0));
-		
-	//float freq_radians_per_sample = freq_Hz*2*M_PI/S_RATE;
+	
+	//short int meandr_value=32767;
 
 	/* fill buffer with a sine wave */
 	for (i=0; i<BUF_SIZE; i++)
 	{
-		//phase += freq_radians_per_sample;
-		//buffer[i] = (int)(amplitude * sin(phase));
 		
-		buffer[i] = (int)(amplitude/10 * sin((float)(2*M_PI*i*freq_Hz/S_RATE)));
-		buffer[i] +=(int)(amplitude/20 * sin((float)(2*M_PI*i*10*freq_Hz/S_RATE)));
-		buffer[i] +=(int)(amplitude * sin((float)(2*M_PI*i*100*freq_Hz/S_RATE)));
+		buffer[i] = (int)(amplitude/10 * sin((float)(2*M_PI*i*freq_Hz/S_RATE))); //10%amp
+		buffer[i] +=(int)(amplitude/20 * sin((float)(2*M_PI*i*10*freq_Hz/S_RATE))); //5% amp
+		buffer[i] +=(int)(amplitude * sin((float)(2*M_PI*i*100*freq_Hz/S_RATE))); //100% amp
 		
-		buffer[i] +=(int)amplitude*d_random(-1.0, 1.0); //nois
+		//buffer[i] +=(int)(amplitude * sin((float)(2*M_PI*i*freq_Hz/S_RATE))); //100% amp
+		
+		//buffer[i] +=(int)amplitude/10*d_random(-1.0, 1.0); //nois
+		
+		/*
+		//meandr
+		if (!(i%(S_RATE/((int)freq_Hz/2)))) {
+			if (meandr_value==32767) {
+				meandr_value=-32767;
+			} else { 
+				meandr_value=32767;
+			}
+		}
+		buffer[i]=meandr_value;
+		*/
 	}
 	write_wav("test.wav", BUF_SIZE, buffer, S_RATE);
  
